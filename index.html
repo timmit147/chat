@@ -1,1 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add and Remove Names</title>
+</head>
+<body>
+    <h2>Add Names</h2>
+    <form id="nameForm">
+        <label for="name">Enter a Name:</label>
+        <input type="text" id="name" name="name">
+        <button type="button" onclick="addName()">Add Name</button>
+    </form>
 
+    <h2>Names List</h2>
+    <ul id="namesList"></ul>
+
+    <script>
+        // Function to fetch and update names list
+        function updateNamesList() {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("namesList").innerHTML = this.responseText;
+                }
+            };
+            xhr.open("GET", "https://multii.freaze.eu/fetch_names.php", true);
+            xhr.send();
+        }
+
+        // Call updateNamesList function initially
+        updateNamesList();
+
+        // Set interval to call updateNamesList function every 4 seconds
+        setInterval(updateNamesList, 4000);
+
+        // Function to add name via AJAX
+        function addName() {
+            var nameInput = document.getElementById("name").value;
+            if (nameInput.trim() !== "") {
+                var formData = new FormData();
+                formData.append("name", nameInput);
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        updateNamesList();
+                        alert(this.responseText); // Display response from server
+                    }
+                };
+                xhr.open("POST", "https://multii.freaze.eu/addnames.php", true);
+                xhr.send(formData);
+            } else {
+                alert("Please enter a name.");
+            }
+        }
+
+        // Function to remove name via AJAX
+        function removeName(name) {
+            var confirmRemove = confirm("Are you sure you want to remove " + name + "?");
+            if (confirmRemove) {
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        updateNamesList();
+                        alert(this.responseText); // Display response from server
+                    }
+                };
+                xhr.open("GET", "https://multii.freaze.eu/remove_name.php?name=" + encodeURIComponent(name), true);
+                xhr.send();
+            }
+        }
+    </script>
+</body>
+</html>
